@@ -93,6 +93,8 @@ score = 0
 bg_music = pygame.mixer.Sound('audio/music.wav')
 bg_music.set_volume(0.2)
 bg_music.play(loops=-1)
+menu_active = True
+game_over_active = False
 
 # Text font
 pixel_font = pygame.font.Font('font/Pixeltype.ttf', 50)
@@ -122,7 +124,7 @@ game_title_surf = pixel_font.render('Runnin', False, (111, 196, 169))
 game_title_surf = pygame.transform.rotozoom(game_title_surf, 0, 1.2)
 game_title_rect = game_title_surf.get_rect(center=(400, 80))
 
-start_inst_surf = pixel_font.render('Press space to run', False, (111, 196, 169))
+start_inst_surf = pixel_font.render('Press SPACE to run', False, (111, 196, 169))
 start_inst_surf = pygame.transform.rotozoom(start_inst_surf, 0, 1.2)
 start_inst_rect = start_inst_surf.get_rect(midleft=(230, 320))
 
@@ -179,18 +181,31 @@ while True:
         game_active = collisions_sprite()
         # Score
         score = display_score()
-    else:
+        # Changing game state to game over
+        if not game_active and not menu_active:
+            game_over_active = True
+    if menu_active:
+        # Menu
+        screen.fill((94, 129, 162))
+
+        screen.blit(player_stand_surf, player_stand_rect)
+        screen.blit(game_title_surf, game_title_rect)
+        screen.blit(start_inst_surf, start_inst_rect)
+        if game_active:
+            menu_active = False
+
+    elif game_over_active:
+        # Game over
         screen.fill((94, 129, 162))
         score_message_surf = pixel_font.render(f'Your score is: {score}', False, (111, 196, 169))
         score_message_surf = pygame.transform.rotozoom(score_message_surf, 0, 1.2)
         score_message_rect = score_message_surf.get_rect(midleft=(230, 320))
 
+        screen.blit(score_message_surf, score_message_rect)
         screen.blit(player_stand_surf, player_stand_rect)
         screen.blit(game_title_surf, game_title_rect)
-        if score == 0:
-            screen.blit(start_inst_surf, start_inst_rect)
-        else:
-            screen.blit(score_message_surf, score_message_rect)
+        if game_active:
+            game_over_active = False
 
     pygame.display.update()
     clock.tick(60)
