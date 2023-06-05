@@ -1,6 +1,7 @@
 import random
 import pygame
 import sys
+import buttons
 
 
 class Player(pygame.sprite.Sprite):
@@ -103,8 +104,8 @@ pixel_font = pygame.font.Font('font/Pixeltype.ttf', 50)
 clock = pygame.time.Clock()
 
 # Environment surfaces
-sky_surf = pygame.image.load('graphics/Sky.png').convert()
-ground_surf = pygame.image.load('graphics/ground.png').convert()
+sky_surf = pygame.image.load('graphics/Environment/Sky.png').convert()
+ground_surf = pygame.image.load('graphics/Environment/ground.png').convert()
 
 # Groups
 player = pygame.sprite.GroupSingle()
@@ -124,9 +125,13 @@ game_title_surf = pixel_font.render('Runnin', False, (111, 196, 169))
 game_title_surf = pygame.transform.rotozoom(game_title_surf, 0, 1.2)
 game_title_rect = game_title_surf.get_rect(center=(400, 80))
 
-start_inst_surf = pixel_font.render('Press SPACE to run', False, (111, 196, 169))
+start_inst_surf = pixel_font.render('Space: jump', False, (111, 196, 169))
 start_inst_surf = pygame.transform.rotozoom(start_inst_surf, 0, 1.2)
-start_inst_rect = start_inst_surf.get_rect(midleft=(230, 320))
+start_inst_rect = start_inst_surf.get_rect(midleft=(300, 320))
+
+# Button instances
+start_button = buttons.Button(pygame.image.load('graphics/Buttons/start_btn.png').convert_alpha(), 150, 300, 0.5)
+exit_button = buttons.Button(pygame.image.load('graphics/Buttons/exit_btn.png').convert_alpha(), 520, 300, 0.5)
 
 
 # Score function
@@ -161,12 +166,12 @@ while True:
             # Adds new enemy to obstacle group after a 1.5 secs
             if event.type == obstacle_timer:
                 obstacle_group.add(Obstacles(random.choice(['fly', 'snail', 'snail', 'snail'])))
-        else:
-            # Start game by pressing space
+        if game_over_active:
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    game_active = True
-                    start_time = int(pygame.time.get_ticks() / 1000)
+                # Returns to menu by pressing escape
+                if event.key == pygame.K_ESCAPE:
+                    game_over_active = False
+                    menu_active = True
     if game_active:
         # Environment
         screen.blit(sky_surf, (0, 0))
@@ -188,6 +193,16 @@ while True:
         # Menu
         screen.fill((94, 129, 162))
 
+        # Starts game by clicking start
+        if start_button.draw(screen):
+            game_active = True
+            start_time = int(pygame.time.get_ticks() / 1000)
+
+        # Exits game by clicking exit
+        if exit_button.draw(screen):
+            pygame.quit()
+            sys.exit()
+
         screen.blit(player_stand_surf, player_stand_rect)
         screen.blit(game_title_surf, game_title_rect)
         screen.blit(start_inst_surf, start_inst_rect)
@@ -197,13 +212,21 @@ while True:
     elif game_over_active:
         # Game over
         screen.fill((94, 129, 162))
+
+        # 'Score message' sprite
         score_message_surf = pixel_font.render(f'Your score is: {score}', False, (111, 196, 169))
         score_message_surf = pygame.transform.rotozoom(score_message_surf, 0, 1.2)
         score_message_rect = score_message_surf.get_rect(midleft=(230, 320))
 
+        # 'Return to menu instructions' sprite
+        return_menu_surf = pixel_font.render('Escape: Main Menu', False, (111, 196, 169))
+        return_menu_surf = pygame.transform.rotozoom(return_menu_surf, 0, 0.5)
+        return_menu_rect = return_menu_surf.get_rect(topleft=(20, 30))
+
         screen.blit(score_message_surf, score_message_rect)
         screen.blit(player_stand_surf, player_stand_rect)
         screen.blit(game_title_surf, game_title_rect)
+        screen.blit(return_menu_surf, return_menu_rect)
         if game_active:
             game_over_active = False
 
