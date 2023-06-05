@@ -96,6 +96,8 @@ bg_music.set_volume(0.2)
 bg_music.play(loops=-1)
 menu_active = True
 game_over_active = False
+scroll = 0
+tiles = 3
 
 # Text font
 pixel_font = pygame.font.Font('font/Pixeltype.ttf', 50)
@@ -105,6 +107,7 @@ clock = pygame.time.Clock()
 
 # Environment surfaces
 sky_surf = pygame.image.load('graphics/Environment/Sky.png').convert()
+sky_width = sky_surf.get_width()
 ground_surf = pygame.image.load('graphics/Environment/ground.png').convert()
 
 # Groups
@@ -173,8 +176,18 @@ while True:
                     game_over_active = False
                     menu_active = True
     if game_active:
-        # Environment
-        screen.blit(sky_surf, (0, 0))
+        # Scrolling sky
+        for i in range(0, tiles):
+            screen.blit(sky_surf, (i * sky_width + scroll, 0))
+
+        # variable that causes the scrolling effect
+        scroll -= 5
+
+        # Resets the sky after scroll reaches the sky width
+        if abs(scroll) > sky_width:
+            scroll = 0
+
+        # Ground
         screen.blit(ground_surf, (0, 300))
         # Player
         player.draw(screen)
